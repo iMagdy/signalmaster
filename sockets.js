@@ -41,8 +41,6 @@ module.exports = function (server, config) {
             removeFeed('screen');
           });
 
-        client.on('join', join);
-
         let removeFeed = (type) => {
             console.log("SIGNALS::removeFeed", type);
           if (client.room) {
@@ -75,6 +73,8 @@ module.exports = function (server, config) {
           client.join(name);
           client.room = name;
         }
+
+        client.on('join', join);
 
         // we don't want to pass "leave" directly because the
         // event type string of "socket end" gets passed too.
