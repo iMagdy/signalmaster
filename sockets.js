@@ -44,6 +44,7 @@ module.exports = function (server, config) {
         client.on('join', join);
 
         let removeFeed = (type) => {
+            console.log("SIGNALS::removeFeed", type);
           if (client.room) {
               io.sockets.in(client.room).emit('remove', {
                   id: client.id,
@@ -59,6 +60,9 @@ module.exports = function (server, config) {
         let join = (name, cb) => {
           // sanity check
           if (typeof name !== 'string') return;
+
+          console.log("SIGNALS::join", name);
+
           // check if maximum number of clients reached
           if (config.rooms && config.rooms.maxClients > 0 &&
               clientsInRoom(name) >= config.rooms.maxClients) {
@@ -74,10 +78,17 @@ module.exports = function (server, config) {
 
         // we don't want to pass "leave" directly because the
         // event type string of "socket end" gets passed too.
-        client.on('disconnect', () => removeFeed());
-        client.on('leave', () => removeFeed());
+        client.on('disconnect', () => {
+            console.log("SIGNALS::disconnect");
+            removeFeed();
+        });
+        client.on('leave', () => {
+            console.log("SIGNALS::leave");
+            removeFeed();
+        });
 
         client.on('create', function (name, cb) {
+            console.log("SIGNALS::create => ", name);
             if (arguments.length == 2) {
               cb = (typeof cb == 'function') ? cb : function () {};
 
@@ -109,25 +120,35 @@ module.exports = function (server, config) {
         console.log("SIGNALS::STUN_SERVERS => ", config.stunservers);
         client.emit('stunservers', config.stunservers || []);
 
-        // create shared secret nonces for TURN authentication
-        // the process is described in draft-uberti-behave-turn-rest
-        var credentials = [];
+        let credentials = [];
 
-        // allow selectively vending turn credentials based on origin.
-        var origin = client.handshake.headers.origin;
-        if (!config.turnorigins || config.turnorigins.indexOf(origin) !== -1) {
-          config.turnservers.forEach((server) => {
-              var hmac = CRYPTO.createHmac('sha1', server.secret);
-              // default to 86400 seconds timeout unless specified
-              var username = Math.floor(new Date().getTime() / 1000) + (server.expiry || 86400) + '';
-              hmac.update(username);
-              credentials.push({
-                  username: username,
-                  credential: hmac.digest('base64'),
-                  urls: server.urls || server.url,
+            // create shared secret nonces for TURN authentication
+            // the process is described in draft-uberti-behave-turn-rest
+
+            // allow selectively vending turn credentials based on origin.
+            let origin = client.handshake.headers.origin;
+
+            if (!config.turnorigins || config.turnorigins.indexOf(origin) !== -1) {
+              config.turnservers.forEach((server) => {
+                    if (config.sharedKeyAuth) {
+                        let hmac = CRYPTO.createHmac('sha1', server.secret);
+                        // default to 86400 seconds timeout unless specified
+                        let username = Math.floor(new Date().getTime() / 1000) + (server.expiry || 86400) + '';
+                        hmac.update(username);
+                        credentials.push({
+                            username: username,
+                            credential: hmac.digest('base64'),
+                            urls: server.urls || server.url,
+                        });
+                    } else {
+                        credentials.push({
+                            username: username,
+                            credential: server.secret,
+                            urls: server.urls || server.url,
+                        });
+                    }
               });
-          });
-        }
+            }
 
         client.emit('turnservers', credentials);
     });

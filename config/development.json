@@ -8,6 +8,7 @@
     "cert": null,
     "password": null
   },
+  "sharedKeyAuth": false,
   "rooms": {
     "/* maxClients */": "/* maximum number of clients per room. 0 = no limit */",
     "maxClients": 0
@@ -20,7 +21,8 @@
   "turnservers": [
     {
       "urls": ["turn:your.turn.servers.here"],
-      "secret": "turnserversharedsecret",
+      "secret": "sharedkey or password",
+      "username": "myusername - use this only if you have sharedKeyAuth false, otherwise, remove this line",
       "expiry": 86400
     }
   ]

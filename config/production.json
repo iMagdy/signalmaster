@@ -8,6 +8,7 @@
     "cert": "config/sslcerts/cert.pem",
     "password": null
   },
+  "sharedKeyAuth": false,
   "rooms": {
     "/* maxClients */": "/* maximum number of clients per room. 0 = no limit */",
     "maxClients": 0
@@ -20,7 +21,8 @@
   "turnservers": [
     {
       "urls": ["turn:your.turn.servers.here"],
-      "secret": "turnserversharedsecret",
+      "username": "myusername - use this only if you have sharedKeyAuth false, otherwise, remove this line",
+      "secret": "sharedkey or password",
       "expiry": 86400
     }
   ]
