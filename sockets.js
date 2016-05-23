@@ -142,7 +142,7 @@ module.exports = function (server, config) {
                         });
                     } else {
                         credentials.push({
-                            username: username,
+                            username: server.username,
                             credential: server.secret,
                             urls: server.urls || server.url,
                         });
