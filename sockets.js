@@ -166,7 +166,13 @@ module.exports = function (server, config) {
         return result;
     }
 
-    let clientsInRoom = () => io.sockets.clients(name).length;
+    let clientsInRoom = () => {
+        let clientsCount = 0;
+        for (let socketId in io.nsps['/'].adapter.rooms[name] || {}) {
+            clientsCount++;
+        }
+        return clientsCount;
+    };
 
 };
 
