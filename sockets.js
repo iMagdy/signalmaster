@@ -122,8 +122,8 @@ module.exports = function (server, config) {
         if (config.useTwillioStunTurn) {
             let twillioSID       = config.twillioSID;
             let twillioAuthToken = config.twillioAuthToken;
-            let client = require('twilio')(twillioSID, twillioAuthToken);
-            client.tokens.create({}, (err, token) => {
+            let twillioClient = require('twilio')(twillioSID, twillioAuthToken);
+            twillioClient.tokens.create({}, (err, token) => {
                 // process.stdout.write(token.ice_servers);
                 client.emit('stunservers', token.ice_servers);
                 client.emit('turnservers', token.ice_servers);
