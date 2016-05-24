@@ -118,7 +118,17 @@ module.exports = function (server, config) {
 
         // tell client about stun and turn servers and generate nonces
         console.log("SIGNALS::STUN_SERVERS => ", config.stunservers);
-        client.emit('stunservers', config.stunservers || []);
+
+        if (config.useTwillioStunTurn) {
+            let twillioSID       = config.twillioSID;
+            let twillioAuthToken = config.twillioAuthToken;
+            let client = require('twilio')(twillioSID, twillioAuthToken);
+            client.tokens.create({}, (err, token) => {
+                // process.stdout.write(token.ice_servers);
+                client.emit('stunservers', token.ice_servers);
+                client.emit('turnservers', token.ice_servers);
+            });
+        }
 
         let credentials = [];
 
@@ -150,7 +160,10 @@ module.exports = function (server, config) {
               });
             }
 
-        client.emit('turnservers', credentials);
+        if (! config.useTwillioStunTurn ) {
+            client.emit('stunservers', config.stunservers || []);
+            client.emit('turnservers', credentials);
+        }
     });
 
     let describeRoom = (name) => {
