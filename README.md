@@ -1,3 +1,5 @@
+[![Dependency Status](https://dependencyci.com/github/iMagdy/signalmaster/badge)](https://dependencyci.com/github/iMagdy/signalmaster)
+
 # signalmaster
 
 A simple signaling server for clients to connect and do signaling for WebRTC.
